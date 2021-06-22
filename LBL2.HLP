@@ -1,0 +1,170 @@
+\GENERAL INFORMATION
+                         General Information
+
+LBL2 ver. 1.0
+Surveyors' Line/Curve Annotation
+BASIS Enhanced (C) 1995 by Bill Giel
+
+LBL
+
+The LBL  Command provides  access to  functions that are used to label
+bearings-distances for  lines, and radius-arc lengths for curves. Each
+individual function handles a different label location option.
+
+Functions are  also available  to  display  the  values  for  selected
+lines/arcs without actually performing annotation.
+
+Executing the LBL command, by typing it at the AutoCAD command prompt,
+or by  selecting it  from a  menu, displays  a dialog box containing a
+button for each location option, for lines and curves.
+
+When labelling,  the crosshairs  will shift  to the  World  Coordinate
+System. Thus,  they may  appear twisted  if the current UCS is not the
+"World" UCS.  However, the  location options will be correctly related
+for the current view. Upon exiting, the current UCS will be restored.
+
+The  program  is  compatible  with  DCA/Softdesk,  and  checks  system
+variable USERR3  for a  rotation value.  If found,  this value will be
+applied to  the "World"  orientation of  the line  to  arrive  at  the
+correct survey direction.
+
+Linear precision  is  controlled  by  the  system  variable  "LUPREC."
+Angular precision  is one arc second, or the value contained in system
+variable "AUPREC," whichever is greater.
+
+The distance  dimensioning suffix  contained in  dimensioning variable
+"DIMPOST", if any, will be appended to distance labels.
+
+Distances  will   be  multiplied   by  the   value  contained  in  the
+dimensioning variable "DIMLFAC."
+
+
+\SELECTION OPTIONS
+
+                          Selection Options
+
+Lines/Curves  can   be  selected   in  two  ways,  controlled  by  the
+'Selection' radio-buttons.
+
+If the  'Entities' option  is chosen, then a line or curve is labelled
+by picking  it. For  lines, the direction will be interpreted as going
+from the pickpoint to the farthest endpoint.
+
+If the  'Points' option  is chosen,  then lines  will be  labelled  by
+picking endpoints,  and curves  will be labelled by picking endpoints,
+and a point on the curve, between the selected endpoints.
+
+
+\TEXT OPTION
+                             Text Option
+                                   
+The "Popup  List" of  available textstyles  can be  used to change the
+current textstyle.
+
+The current textstyle is displayed initially as the default. To change
+to a different style, click on the arrow at the right of the list box.
+A longer  list of  available textstyles  will  appear.  Click  on  the
+desired style.  The program  will set  the current  style to  the  one
+selected.
+
+\LINE LABELLING OPTIONS
+                        Line Labelling Options
+
+Bearing / Distance
+This option  will cause  the bearing  to be  displayed on  top of  the
+selected line, and the distance below.
+
+Distance / Bearing
+This option  will cause  the distance  to be  displayed on  top of the
+selected line, and the bearing below it.
+
+Bearing-Distance/
+This option  places both  bearing and  distance labels  on top  of the
+selected line.
+
+/Bearing-Distance
+This option places both bearing and distance labels below the selected
+line.
+
+Bearing/
+This option places the bearing, only, above the selected line.
+
+/Bearing
+This option places the bearing, only, below the selected line.
+
+Distance/
+This option places the distance, only, above the selected line.
+
+/Distance
+This option places the distance, only, below the selected line.
+
+Hang Brg/Dist
+This option  permits placing  the labels  away from the selected line.
+Prompts for  an insertion point and rotation angle for the labels will
+appear, after  the line  is selected. The labels will be placed on two
+text lines, bearing over distance.
+
+Hang Brg-Dist
+This option  also permits  placing the  labels away  from the selected
+line. Prompts  for an insertion point and rotation angle for the label
+will appear,  after the  line is selected. The label will be placed on
+one text line, bearing and distance.
+
+List Brg-Dist
+Selecting this  option lets  you display the bearing and distance of a
+selected line  in the command prompt area, without actually annotating
+the line.
+
+
+\CURVE LABELLING OPTIONS
+                       Curve Labelling Options
+
+Radius ( Length
+This option  will place  the radius  label along  the outside  of  the
+selected curve, and the length label along the inside.
+
+Radius ) Length
+This option  will place  the radius  label along  the  inside  of  the
+selected curve, and the length along the outside.
+
+Radius-Length (
+This option  will locate  both radius  and  length  labels  along  the
+outside of the selected curve.
+
+( Radius-Length
+This option will locate both radius and length labels along the inside
+of the selected curve.
+
+Radius (
+This option  will place  the radius  label, only, along the outside of
+the selected curve.
+
+Radius )
+This option will place the radius label, only, along the inside of the
+selected curve.
+
+Length (
+This option  will place  the length  label, only, along the outside of
+the selected curve.
+
+Length )
+This option  will locate  the length  label, only, along the inside of
+the selected curve.
+
+Hang R/L
+This option permits placing the radius and length labels away from the
+selected curve.  Prompts for an insertion point and rotation angle for
+the labels  will appear,  after the curve is selected. The labels will
+be placed on two text lines, radius over length.
+
+Hang R/L/D/T
+This option  permits placing  radius, length,  delta angle and tangent
+labels away  from the  selected curve.  Prompts for an insertion point
+and rotation  angle for  the labels  will appear,  after the  curve is
+selected. The  labels will  be placed  on  four  text  lines,  radius,
+length, delta angle, and tangent length
+
+List R/L/D/T
+Selecting this  option lets  you display  the radius,  length,  delta,
+tangent, chord  and chord  bearing data  in the  command prompt  area,
+without actually annotating the arc.

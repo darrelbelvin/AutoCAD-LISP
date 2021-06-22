@@ -1,0 +1,61 @@
+(defun _SetCLayer (layerName)
+ (if (tblsearch "layer" layerName)
+   (setvar 'clayer layerName)
+   (prompt
+     (strcat "\n** Layer \"" layerName "\" not found ** ")
+   )
+ )
+ (princ)
+)
+
+(defun kdub:MLINESTYLE-GET (Name / mlsty-DICT MLSty)
+ (if (setq mlsty-DICT (dictsearch (Namedobjdict) "ACAD_MLINESTYLE"))
+   (while (and mlsty-DICT
+               (not (setq MLSty (if (and (assoc 3 mlsty-DICT) (= (strcase (cdr (assoc 3 mlsty-DICT))) (strcase Name)))
+                                  (list (strcase Name) (cdr (cadr (member (assoc 3 mlsty-DICT) mlsty-DICT))))
+                                )
+                    )
+               )
+          )
+     (setq mlsty-DICT (cdr (member (assoc 3 mlsty-DICT) mlsty-DICT)))
+   )
+ )
+ MLSty
+)
+
+(defun _MlineSetup (style layerSuffix / *error* main doc)
+	(vl-load-com)
+	(defun main ()
+		(vla-StartUndoMark (setq doc (vla-get-ActiveDocument (vlax-get-acad-object))))
+
+		(if (not (kdub:MLINESTYLE-GET style))
+			(command "insert" "mlstyles" nil "-purge" "B" "mlstyles" "N" nil)
+		)
+
+		(_SetCLayer (strcat (substr (getvar "CLAYER") 1 2) layerSuffix)) 
+		(command "MLINE" "ST" style)
+		
+		(vla-EndUndoMark doc)
+		(princ)
+	)
+	(defun *error*(s)
+		(princ s)
+		(vla-EndUndoMark doc)
+		(princ)
+	)
+	(main)
+)
+
+(defun c:e4 () (_MlineSetup (if db-mline-filled "4WALL_FILLED" "4WALL") "-WALLS"))
+(defun c:w4 () (_MlineSetup (if db-mline-filled "4WALL_FILLED" "4WALL") "-WALLS-NEW"))
+(defun c:q4 () (_MlineSetup (if db-mline-filled "4WALL_BLACK" "4OPEN") "-OPENING"))
+(defun c:e6 () (_MlineSetup (if db-mline-filled "6WALL_FILLED" "6WALL") "-WALLS"))
+(defun c:w6 () (_MlineSetup (if db-mline-filled "6WALL_FILLED" "6WALL") "-WALLS-NEW"))
+(defun c:q6 () (_MlineSetup (if db-mline-filled "6WALL_BLACK" "6OPEN") "-OPENING"))
+(defun c:q1 () (_MlineSetup "DOOR" "-OPENING")); meant for doors
+
+(setq db-mline-filled acTrue)
+(defun c:kf () 
+	(setq db-mline-filled (not db-mline-filled))
+	(if db-mline-filled "Multiline walls set to FILLED" "Multiline walls set to OUTLINE")
+)
