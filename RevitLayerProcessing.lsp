@@ -67,36 +67,43 @@
 			(setq basesel (ssget)); then -- ask the User to select
 		); if
 
-		(initget "MF- UF- BF-")
-		(setq curflr (getkword "What floor is selected? <MF-/UF-/BF->"))
+		(initget "MF UF BF")
+		(setq curflr (getkword "What floor is selected? <MF/UF/BF>"))
 
-		(setq thelist (list 
-			(list (strcat curflr "HATCH")		(list'(8 . "A-WALL-PATT"))  (list'(8 . "I-WALL-PATT"))  (list'(8 . "I-WALL")'(0 . "HATCH"))  (list'(8 . "A-WALL")'(0 . "HATCH")))
-			(list (strcat curflr "WALLS")		(list'(8 . "I-WALL"))  (list'(8 . "A-WALL"))  (list'(8 . "S-COLS")))
-			(list (strcat curflr "OPENING")		(list'(8 . "A-GLAZ"))  (list'(8 . "A-DOOR"))  (list'(8 . "A-GENM")))
-			(list (strcat curflr "APPLIANCE")	(list'(8 . "Q-SPCQ"))  (list'(8 . "M-EQPM"))  (list'(8 . "P-SANR-FIXT")))
-			(list (strcat curflr "CAB")			(list'(8 . "Q-CASE")))
-			(list (strcat curflr "DIM")			(list'(8 . "A-ANNO-DIMS")))
-			(list (strcat curflr "TEXT")		(list'(8 . "G-ANNO-TEXT"))  (list'(8 . "A-AREA-IDEN"))  (list'(8 . "A-GLAZ-IDEN"))  (list'(8 . "A-ANNO-NOTE"))  (list'(8 . "A-DOOR-IDEN"))  (list'(8 . "S-STRS-IDEN"))  (list'(8 . "S-STRS-ANNO"))  (list'(8 . "A-FLOR-HRAL"))  (list'(8 . "G-ANNO-SYMB")))
-			(list (strcat curflr "STAIR")		(list'(8 . "S-STRS"))  (list'(8 . "S-STRS-MBND")))
-			(list (strcat curflr "FURN")		(list'(8 . "I-FURN"))  (list'(8 . "E-LITE-EQPM")))
-			(list "RF-PROFILE"					(list'(8 . "A-ROOF"))  (list'(8 . "A-ROOF-OTLN")))
-			(list "EL-THIN"						(list'(8 . "A-DETL-MBND"))  (list'(8 . "L-SITE")))
+		(setq dellist (list 
+				(list'(8 . "A-FLOR-PATT"))
+				(list'(8 . "A-FLOR"))
+				(list'(8 . "A-AREA"))
+				(list'(8 . "S-STRS")'(0 . "HATCH"))
 			)
-			dellist (list (list'(8 . "A-FLOR-PATT"))  (list'(8 . "A-FLOR"))  (list'(8 . "A-AREA")))
+			thelist (list 
+				(list (strcat curflr "-HATCH")		(list'(8 . "A-WALL-PATT"))  (list'(8 . "I-WALL-PATT"))  (list'(8 . "I-WALL")'(0 . "HATCH"))  (list'(8 . "A-WALL")'(0 . "HATCH")))
+				(list (strcat curflr "-WALLS")		(list'(8 . "I-WALL"))  (list'(8 . "A-WALL"))  (list'(8 . "S-COLS")))
+				(list (strcat curflr "-OPENING")	(list'(8 . "A-GLAZ"))  (list'(8 . "A-DOOR"))  (list'(8 . "A-GENM")))
+				(list (strcat curflr "-APPLIANCE")	(list'(8 . "Q-SPCQ"))  (list'(8 . "M-EQPM"))  (list'(8 . "P-SANR-FIXT")))
+				(list (strcat curflr "-CAB")		(list'(8 . "Q-CASE")))
+				(list (strcat curflr "-DIM")		(list'(8 . "A-ANNO-DIMS")))
+				(list (strcat curflr "-TEXT")		(list'(8 . "G-ANNO-TEXT"))  (list'(8 . "A-AREA-IDEN"))  (list'(8 . "A-GLAZ-IDEN"))  (list'(8 . "A-ANNO-NOTE"))  (list'(8 . "A-DOOR-IDEN"))  (list'(8 . "S-STRS-IDEN"))  (list'(8 . "S-STRS-ANNO"))  (list'(8 . "A-FLOR-HRAL"))  (list'(8 . "G-ANNO-SYMB")))
+				(list (strcat curflr "-STAIR")		(list'(8 . "S-STRS"))  (list'(8 . "S-STRS-MBND")))
+				(list (strcat curflr "-FURN")		(list'(8 . "I-FURN"))  (list'(8 . "E-LITE-EQPM")))
+				(list (strcat curflr "F-BEAM")		(list'(8 . "S-BEAM")))
+				(list "RF-PROFILE"					(list'(8 . "A-ROOF"))  (list'(8 . "A-ROOF-OTLN")))
+				(list "EL-THIN"						(list'(8 . "A-DETL-MBND"))  (list'(8 . "L-SITE")))
+
+			)
 		)
 		
 		(command "_.-LAYER")
 		(foreach row thelist (command "_N" (car row)))
 		(command "")
 
-		(foreach row thelist
-			(foreach item (cdr row) (selectionLayerChange basesel item (car row)))
-		)
 		(foreach item dellist
 			(selectionLayerChange basesel item nil)
 		)
-
+		(foreach row thelist
+			(foreach item (cdr row) (selectionLayerChange basesel item (car row)))
+		)
+		
 		(setallstylesfont "Frank the Architect Upper.ttf")
 		
 		(vla-EndUndoMark doc)
