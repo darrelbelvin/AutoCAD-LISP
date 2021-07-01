@@ -1,4 +1,5 @@
 (load "GrTextV1-1.lsp")
+(load "msgbox.lsp")
 
 (defun c:showdims ( / *error* dis rot pt1 pt2 pt3 suf T_Segments T_Start T_End ss i ent)
 
@@ -101,10 +102,14 @@
         ))
       )
     )
-    (print T_Segments)
-    (while (= 5 (car (grread nil 13 1)))
-      (redraw)
-      (grvecs (append (list -10) T_Segments))
+    (if (= 0 (length T_Segments)) (lspOkOnly "All selected" "segments" "are on axis." "Result")
+     (progn
+      (sssetfirst nil nil)
+      (while (= 5 (car (grread nil 13 1)))
+        (redraw)
+        (grvecs (append (list -10) T_Segments))
+      )
+     )
     )
     (redraw) (princ)
 ;    (grvecs (append (list -1) T_Segments))
