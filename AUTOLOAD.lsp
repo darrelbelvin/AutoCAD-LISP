@@ -66,6 +66,8 @@
 (autoload "ShowDims.lsp" '("SHOWDIMS" "SD"))
 (autoload "PLDiet.lsp" '("POLYLINEDIET" "PLD"))
 (autoload "ShowDims.lsp" '("SHOWDIMS" "SD" "HIGHIGHTOFFAXIS" "HOA"))
+(load "layerstates.lsp" nil)
+
 (load "CALCHELPERS.LSP" nil)
 (load "SELECTUNION.LSP" nil)
 (load "MultiLineShortcuts.lsp" nil)

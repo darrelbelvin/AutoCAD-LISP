@@ -82,7 +82,7 @@
   (defun main ()
     (vla-StartUndoMark (setq doc (vla-get-ActiveDocument (vlax-get-acad-object))))
     
-    (setq cmdlist (list C:MF C:UF C:BF))
+    (setq cmdlist (list C:MF C:MFF C:MFMF C:UF C:UFF C:UFMF C:BF C:BFMF))
 
     (foreach cmd cmdlist 
       (progn
