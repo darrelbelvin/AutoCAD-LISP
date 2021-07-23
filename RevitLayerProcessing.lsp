@@ -1,9 +1,12 @@
-(defun c:RevitElevLayers (/ *error* main doc thelist dellist row item qaprev ss)
+(load "MergeHatch.lsp" nil)
+(load "Utils.lsp" nil)
+
+(defun c:RevitElevLayers (/ *error* main doc layerlist dellist row item qaprev ss)
 	(vl-load-com)
 	(defun main ()
 		(vla-StartUndoMark (setq doc (vla-get-ActiveDocument (vlax-get-acad-object))))
 		
-		(setq thelist (list 
+		(setq layerlist (list 
 			'("EL-PLATE" 		"A-FLOR-LEVL" "I-WALL" "A-GLAZ-HDLN" "A-DETL-GENF")
 			'("EL-TEXT"			"G-ANNO-DIMS" "G-ANNO-TTLB" "G-ANNO-TTLB-WIDE" "G-ANNO-NPLT" "G-IMPT")
 			'("EL-THIN"			"A_ROOF_MCUT" "M-EQPM" "A-DOOR" "A-DOOR-FRAM" "E-LITE-EQPM" "A-DOOR-GLAZ" "A-FLOR-HRAL" "A-GENM" "A-GLAZ" "S-BEAM" "A-DETL-MEDM")
@@ -18,7 +21,7 @@
 
 		(command "_.-LAYER")
 		(foreach item dellist (command "_N" item))
-		(foreach row thelist (foreach item row (command "_N" item)))
+		(foreach row layerlist (foreach item row (command "_N" item)))
 		(command "")
 
 		(setq qaprev (getvar "qaflags"))
@@ -36,7 +39,7 @@
 		(selectionLayerChange ss (list'(0 . "HATCH")'(8 . "A-GLAZ")) "EL-SHADOWS")
 		(selectionLayerChange ss (list'(0 . "HATCH")'(8 . "C-TOPO")) nil)
 
-		(foreach row thelist
+		(foreach row layerlist
 			(foreach item (cdr row) (selectionLayerChange ss (list (cons 8 item)) (car row)))
 		)
 		(foreach item dellist
@@ -63,23 +66,23 @@
 		(c:ColorByBlockAll)
 		(vla-StartUndoMark (setq doc (vla-get-ActiveDocument (vlax-get-acad-object))))
 
-		(if (not (setq basesel (ssget "_I"))); if there is not an Implied [= pre-] selection [if there is, it will put that into 'ss']
-			(setq basesel (ssget)); then -- ask the User to select
-		); if
+		(setq basesel (getselbothways))
 
 		(initget "MF UF BF")
 		(setq curflr (getkword "What floor is selected? <MF/UF/BF>"))
 
 		(setq dellist (list 
 				(list'(8 . "A-FLOR-PATT"))
-				(list'(8 . "A-FLOR"))
+				(list'(8 . "A-ROOF-PATT"))
+				;(list'(8 . "A-FLOR"))
 				(list'(8 . "A-AREA"))
 				(list'(8 . "S-STRS")'(0 . "HATCH"))
+				(list'(8 . "S-FNDN")'(0 . "HATCH"))
 			)
-			thelist (list 
+			layerlist (list 
 				(list (strcat curflr "-HATCH")		(list'(8 . "A-WALL-PATT"))  (list'(8 . "I-WALL-PATT"))  (list'(8 . "I-WALL")'(0 . "HATCH"))  (list'(8 . "A-WALL")'(0 . "HATCH")))
-				(list (strcat curflr "-WALLS")		(list'(8 . "I-WALL"))  (list'(8 . "A-WALL"))  (list'(8 . "S-COLS")))
-				(list (strcat curflr "-OPENING")	(list'(8 . "A-GLAZ"))  (list'(8 . "A-DOOR"))  (list'(8 . "A-GENM")))
+				(list (strcat curflr "-WALLS")		(list'(8 . "I-WALL"))  (list'(8 . "A-WALL"))  (list'(8 . "S-COLS"))  (list'(8 . "S-FNDN"))  (list'(8 . "A-COLS"))  (list'(8 . "A-FLOR")))
+				(list (strcat curflr "-OPENING")	(list'(8 . "A-GLAZ"))  (list'(8 . "A-DOOR"))  (list'(8 . "A-GENM"))  (list'(8 . "A-GLAZ-CWMG"))  (list'(8 . "A-GLAZ-CURT")))
 				(list (strcat curflr "-APPLIANCE")	(list'(8 . "Q-SPCQ"))  (list'(8 . "M-EQPM"))  (list'(8 . "P-SANR-FIXT")))
 				(list (strcat curflr "-CAB")		(list'(8 . "Q-CASE")))
 				(list (strcat curflr "-DIM")		(list'(8 . "A-ANNO-DIMS")))
@@ -89,22 +92,31 @@
 				(list (strcat curflr "F-BEAM")		(list'(8 . "S-BEAM")))
 				(list "RF-PROFILE"					(list'(8 . "A-ROOF"))  (list'(8 . "A-ROOF-OTLN")))
 				(list "EL-THIN"						(list'(8 . "A-DETL-MBND"))  (list'(8 . "L-SITE")))
-
+				(list "EL-PLATE"					(list'(8 . "C-TOPO-MAJR"))  (list'(8 . "C-TOPO-MINR"))  (list'(8 . "C-TOPO")))
+			)
+			modifylist (list
+				(list (list'(40 . 7.0))				(list'(40 . 12.0)))
+				(list (list'(40 . 4.0))				(list'(40 . 9.0)))
 			)
 		)
-		
+
+		(hatchfix)
+
 		(command "_.-LAYER")
-		(foreach row thelist (command "_N" (car row)))
+		(foreach row layerlist (command "_N" (car row)))
 		(command "")
 
 		(foreach item dellist
 			(selectionLayerChange basesel item nil)
 		)
-		(foreach row thelist
+		(foreach row layerlist
 			(foreach item (cdr row) (selectionLayerChange basesel item (car row)))
 		)
-		
-		(setallstylesfont "Frank the Architect Upper.ttf")
+		(foreach row modifylist
+			(foreach item (cdr row) (selectionEntModify basesel item (car row)))
+		)
+
+		(styles2one "Frank the Architect Upper")
 		
 		(vla-EndUndoMark doc)
 		(princ)
@@ -117,78 +129,21 @@
 	(main)
 )
 
-(defun selectionLayerChange (basesel filter targetLayer)
-	(if (setq laysel (ssget "_X" filter))
+(defun hatchfix () 
+	(if (setq hatches (ssget "_X" (list'(8 . "A-WALL-PATT") (0 . "HATCH") (2 . "SOLID"))))
 		(progn
-			(setq laysel (selectunion basesel laysel))
-			(if (or (not laysel)
-				(zerop (sslength laysel)))
-				(princ "No selection")
-				(if (null targetLayer)
-					(command "_.erase" laysel "")
-					(command "_.change" laysel "" "_Properties" "_LAyer" targetLayer "")
-				)
+			(setq hatches (hatchsimplifymulti hatches)
+				lastEnt (entlast)
 			)
+			(setvar 'clayer "A-WALL")
+			(command "HATCHGENERATEBOUNDARY" hatches "")
+			(command "-overkill" (ssget "_X" (list'(8 . "A-WALL"))) "" "" "Done")
+			(setvar "qaflags" 1)
+			(command "explode" (ssget "_X" (list'(8 . "A-WALL")'(0 . "LWPOLYLINE"))) "")
+			(setvar "qaflags" 0)
 		)
 	)
-	(setq laysel nil)
 )
 
-(defun c:colorByBlockAll (/ *error* main doc color entity block)
-	(vl-load-com)
-	(defun main ()
-		(vla-StartUndoMark (setq doc (vla-get-ActiveDocument (vlax-get-acad-object))))
-
-		(setq color (vlax-create-object (strcat "AutoCAD.AcCmColor." (substr (getvar "acadver") 1 2))))
-		(vla-put-colorIndex color AcByBlock)
-		(setq colorLayer (vlax-create-object (strcat "AutoCAD.AcCmColor." (substr (getvar "acadver") 1 2))))
-		(vla-put-colorIndex colorLayer acByLayer)
-
-		(vlax-for block (vla-get-blocks
-								(vla-get-activedocument
-									(vlax-get-acad-object)
-								)
-							)
-			(if (and (= (vla-get-IsLayout block) :vlax-false)
-				(= (vla-get-IsXref block) :vlax-false)
-				)
-				(vlax-for entity block
-					(vla-put-trueColor entity color)
-					(vla-put-layer entity "0" )
-					(vlax-release-object entity)
-				); vlax-for
-				(vlax-for entity block
-					(vla-put-trueColor entity colorLayer)
-					(vlax-release-object entity)
-				); vlax-for
-			)
-		); vlax-for
-		
-		
-		(vla-EndUndoMark doc)
-		(princ)
-	)
-	(defun *error*(s)
-		(princ s)
-		(vla-EndUndoMark doc)
-		(princ)
-	)
-	(main)
-)
-
-(defun setallstylesfont	(font_file / d)
-  (vlax-for style (vla-get-textstyles (setq d (vla-get-activedocument (vlax-get-acad-object))))
-    (vla-put-fontfile style font_file)
-  )
-  (vla-regen d acactiveviewport)
-)
-
-; (cond
-; 		((eq (setq blkName (getstring "\nBlock name: ")) "") 
-; 			nil
-; 			)
-; 		((null (tblsearch "block" blkName))
-; 			(vlr-beep-reaction)
-; 			(prompt (strcat "\nblock " blkName " is not found."))
-; 		)
-; 		( t
+(defun c:fontsize12to7 () (selectionEntModify (getselbothways) (list'(40 . 12.0)) (list'(40 . 7.0))))
+(defun c:fontsize9to4 () (selectionEntModify (getselbothways) (list'(40 . 9.0)) (list'(40 . 4.0))))

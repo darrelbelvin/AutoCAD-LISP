@@ -20,34 +20,34 @@
   (If hentinfo (setq  BGColor (vla-get-backgroundcolor (vlax-ename->vla-object hentinfo)) hentinfo (entget hentinfo)) (princ "\nMissed. Try again.")))
 (while (not ss) (princ "\nSelect ALL hatch entities to merge:")(setq ss (ssget '((0 . "HATCH")))))
 (setq MergedHatchList
-      (list (cons 0 "HATCH")
-            (cons 100 "AcDbEntity")
-            (assoc 8 hentinfo)
-      ))
+	(list (cons 0 "HATCH")
+		(cons 100 "AcDbEntity")
+		(assoc 8 hentinfo)
+	))
 (if (assoc 62 hentinfo)(setq MergedHatchList (append MergedHatchList (list (assoc 62 hentinfo)))))
 (setq MergedHatchList (append MergedHatchList (list 
-            (cons 100 "AcDbHatch")
-            (assoc 10 hentinfo)
-            (assoc 210 hentinfo)
-            (assoc 2 hentinfo)
-            (assoc 70 hentinfo)
-            (assoc 71 hentinfo)
-            (cons 91 (sslength ss))))
-      i -1 seedpt# 0 ent# 0)
+		(cons 100 "AcDbHatch")
+		(assoc 10 hentinfo)
+		(assoc 210 hentinfo)
+		(assoc 2 hentinfo)
+		(assoc 70 hentinfo)
+		(assoc 71 hentinfo)
+		(cons 91 (sslength ss))))
+	i -1 seedpt# 0 ent# 0)
 (setvar 'cmdecho 0)
 (repeat (sslength ss)
  (setq entinfo (entget (ssname ss (setq i (1+ i))))
-       entinfo2 (member (assoc 92 entinfo) entinfo)
-       entinfo2 (reverse (cdr (member (assoc 75 entinfo2)(reverse entinfo2))))
-       ent# (+ ent# (cdr (assoc 91 entinfo)))
-       seedpt# (+ seedpt# (cdr (assoc 98 entinfo)))
-       seedpts (append seedpts (massoc 10 (member (assoc 98 entinfo) entinfo))) 
-       MergedHatchList (append MergedHatchList entinfo2))
+	 entinfo2 (member (assoc 92 entinfo) entinfo)
+	 entinfo2 (reverse (cdr (member (assoc 75 entinfo2)(reverse entinfo2))))
+	 ent# (+ ent# (cdr (assoc 91 entinfo)))
+	 seedpt# (+ seedpt# (cdr (assoc 98 entinfo)))
+	 seedpts (append seedpts (massoc 10 (member (assoc 98 entinfo) entinfo))) 
+	 MergedHatchList (append MergedHatchList entinfo2))
 (if (zerop (cdr (assoc 71 entinfo)))(setq turnoff T))
 (entdel (ssname ss i))
 )
 (setq MergedHatchList (subst (cons 91 ent#)(assoc 91 MergedHatchList) MergedHatchList)
-      MergedHatchList
+	MergedHatchList
  (append MergedHatchList
    (append
      (reverse (cdr (member (assoc 98 hentinfo)(reverse (member (assoc 75 hentinfo) hentinfo)))))
@@ -70,45 +70,58 @@
 )
 (defun c:MH () (c:MergeHatch))
 
+(defun hatchsimplifymulti (orighatches / lastEnt boundmessy regions unreg newhatches)
+	(setq lastEnt (entlast))
+	(command "HATCHGENERATEBOUNDARY" orighatches "")
 
-(defun c:hatchsimplify (/)
+	(setq boundmessy (ssadd))
+	(while (setq lastEnt (entnext lastEnt))
+		(ssadd lastEnt boundmessy)
+	)
 
-    (prompt "\nChoose hatch entity: ")
-    (setq hec0 (car (entsel)))
+	(setq lastEnt (entlast))
+	(command "region" boundmessy "")
 
-    (setq lastEnt (entlast))
+	(setq regions (ssadd))
+	(while (setq lastEnt (entnext lastEnt))
+		(ssadd lastEnt regions)
+	)
 
-    (command "HATCHGENERATEBOUNDARY" hec0 "")
+	(command "union" regions "")
+	(setq unreg (entlast) lastEnt unreg)
 
-    (setq hecplinije (ssadd))
-    (while (setq lastEnt (entnext lastEnt))
-        (ssadd lastEnt hecplinije)
-    )
-    (sssetfirst nil hecplinije)
+	(command "-hatch" "s" unreg "" "")
 
+	(setq newhatches (ssadd))
+	(while (setq lastEnt (entnext lastEnt))
+		(ssadd lastEnt newhatches)
+	)
 
-    (setq lastEnt (entlast))
+	(command "matchprop" orighatches newhatches "")
 
-    (command "region" hecplinije "")
-
-    (setq hecregije (ssadd))
-    (while (setq lastEnt (entnext lastEnt))
-        (ssadd lastEnt hecregije)
-    )
-    (sssetfirst nil hecregije)
-
-
-    (command "union" hecregije "")
-    (setq unreg (entlast))
-
-    (command "-hatch" "s" unreg "" "")
-    (setq hec1 (entlast))
-
-    (command "matchprop" hec0 hec1 "")
-
-    (entdel hec0)
-    (entdel unreg)
-
-
-    (princ)
+	(repeat (setq i (sslength orighatches))
+		(entdel (ssname orighatches (setq i (1- i))))
+	)
+	(entdel unreg)
+	newhatches
 )
+
+(defun c:HatchSimplify (/ *error* main doc orighatches)
+	(vl-load-com)
+	(defun main ()
+		(vla-StartUndoMark (setq doc (vla-get-ActiveDocument (vlax-get-acad-object))))
+		
+		(setq orighatches (getselbothways))
+		(hatchsimplifymulti orighatches)
+		
+		(vla-EndUndoMark doc)
+		(princ)
+	)
+	(defun *error*(s)
+		(princ s)
+		(vla-EndUndoMark doc)
+		(princ)
+	)
+	(main)
+)
+(defun c:HS () (c:HatchSimplify))
