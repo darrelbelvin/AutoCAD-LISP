@@ -6,6 +6,11 @@
     )
 )
 
+(defun selectunion (sa sb)
+    (ssmap '(lambda (e) (if (not (ssmemb e sa)) (ssdel e sb))) sb)
+    sb
+)
+
 (defun c:selectunion ( / sa sb)
     (if (setq sa (ssget))
         (if (setq sb (ssget))
@@ -20,10 +25,6 @@
     (setq sb nil)
 )
 
-(defun selectunion (sa sb)
-    (ssmap '(lambda (e) (if (not (ssmemb e sa)) (ssdel e sb))) sb)
-    sb
-)
 
 (defun c:su() (c:selectunion))
 (defun c:ssu () (command "SELECTSIMILAR") (c:selectunion))

@@ -1,4 +1,4 @@
-(defun selectionLayerChange (basesel filter targetLayer)
+(defun selectionLayerChange (basesel filter targetLayer / laysel)
 	(if (setq laysel (ssget "_X" filter))
 		(progn
 			(setq laysel (selectunion basesel laysel))
@@ -15,7 +15,7 @@
 	(setq laysel nil)
 )
 
-(defun selectionEntModify (basesel filter newdata)
+(defun selectionEntModify (basesel filter newdata / laysel ed i item)
 	(if (setq laysel (ssget "_X" filter))
 		(progn
 			(setq laysel (selectunion basesel laysel))
@@ -29,6 +29,11 @@
 	(setq laysel nil)
 )
 
+; examples
+; (defun c:fontsize12to7 () (selectionEntModify (getselbothways) (list'(40 . 12.0)) (list'(40 . 7.0))))
+; (defun c:fontsize9to4 () (selectionEntModify (getselbothways) (list'(40 . 9.0)) (list'(40 . 4.0))))
+
+
 (defun getselbothways (/ ss)
 	(if (not (setq ss (ssget "_I"))); if there is not an Implied [= pre-] selection [if there is, it will put that into 'ss']
 		(progn
@@ -38,11 +43,6 @@
 	); if
 	ss
 )
-
-; examples
-; (defun c:fontsize12to7 () (selectionEntModify (getselbothways) (list'(40 . 12.0)) (list'(40 . 7.0))))
-; (defun c:fontsize9to4 () (selectionEntModify (getselbothways) (list'(40 . 9.0)) (list'(40 . 4.0))))
-
 
 (defun c:colorByBlockAll (/ *error* main doc color entity block)
 	(vl-load-com)
