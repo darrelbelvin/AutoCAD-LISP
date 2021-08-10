@@ -88,11 +88,12 @@
 				(list (strcat curflr "-DIM")		(list'(8 . "A-ANNO-DIMS")))
 				(list (strcat curflr "-TEXT")		(list'(8 . "G-ANNO-TEXT"))  (list'(8 . "A-AREA-IDEN"))  (list'(8 . "A-GLAZ-IDEN"))  (list'(8 . "A-ANNO-NOTE"))  (list'(8 . "A-DOOR-IDEN"))  (list'(8 . "S-STRS-IDEN"))  (list'(8 . "S-STRS-ANNO"))  (list'(8 . "A-FLOR-HRAL"))  (list'(8 . "G-ANNO-SYMB")))
 				(list (strcat curflr "-STAIR")		(list'(8 . "S-STRS"))  (list'(8 . "S-STRS-MBND")))
-				(list (strcat curflr "-FURN")		(list'(8 . "I-FURN"))  (list'(8 . "E-LITE-EQPM")))
+				(list (strcat curflr "-FURN")		(list'(8 . "I-FURN"))  (list'(8 . "E-LITE-EQPM"))  (list'(8 . "A-DETL-GENF")))
 				(list (strcat curflr "F-BEAM")		(list'(8 . "S-BEAM")))
 				(list "RF-PROFILE"					(list'(8 . "A-ROOF"))  (list'(8 . "A-ROOF-OTLN")))
 				(list "EL-THIN"						(list'(8 . "A-DETL-MBND"))  (list'(8 . "L-SITE")))
 				(list "EL-PLATE"					(list'(8 . "C-TOPO-MAJR"))  (list'(8 . "C-TOPO-MINR"))  (list'(8 . "C-TOPO")))
+				(list "EL-OUTLINE"					(list'(8 . "C-PROP-LINE")))
 			)
 			modifylist (list
 				(list (list'(40 . 7.0))				(list'(40 . 12.0)))
@@ -100,11 +101,11 @@
 			)
 		)
 
-		(hatchfix)
-
 		(command "_.-LAYER")
 		(foreach row layerlist (command "_N" (car row)))
 		(command "")
+
+		(hatchfix basesel curflr)
 
 		(foreach item dellist
 			(selectionLayerChange basesel item nil)
@@ -129,25 +130,49 @@
 	(main)
 )
 
-(defun hatchfix () 
+(defun hatchfix (basesel curflr) 
 	(if (setq hatches (ssget "_X" (list'(8 . "A-WALL-PATT")'(0 . "HATCH")'(2 . "SOLID"))))
 		(progn
-			(setq laysel (selectunion basesel laysel))
-			(if (not (or (not laysel) (zerop (sslength laysel))))
+			(setq hatches (selectunion basesel hatches))
+			(if (not (or (not hatches) (zerop (sslength hatches))))
 				(progn
+					(setvar 'clayer (strcat curflr "-HATCH"))
 					(setq hatches (hatchsimplifymulti hatches)
 						lastEnt (entlast)
+						laywall (strcat curflr "-WALLS")
+						;layhatch (strcat curflr "-HATCH")
 					)
-					(setvar 'clayer "A-WALL")
+					(setvar 'clayer laywall)
 					(command "HATCHGENERATEBOUNDARY" hatches "")
-					(command "-overkill" (ssget "_X" (list'(8 . "A-WALL"))) "" "" "Done")
+					(command "-overkill" (ssget "_X" (list (cons 8 laywall))) "" "" "Done")
 					(setvar "qaflags" 1)
-					(command "explode" (ssget "_X" (list'(8 . "A-WALL")'(0 . "LWPOLYLINE"))) "")
+					(command "explode" (ssget "_X" (list (cons 8 laywall)'(0 . "LWPOLYLINE"))) "")
 					(setvar "qaflags" 0)
 				)
 			)
 		)
 	)
+)
+
+(defun c:RevitHatchFix (/ *error* main doc)
+	(vl-load-com)
+	(defun main ()
+		(vla-StartUndoMark (setq doc (vla-get-ActiveDocument (vlax-get-acad-object))))
+		
+		(setq basesel (getselbothways))
+		(initget "MF UF BF")
+		(setq curflr (getkword "What floor is selected? <MF/UF/BF>"))
+		(hatchfix basesel curflr)
+		
+		(vla-EndUndoMark doc)
+		(princ)
+	)
+	(defun *error*(s)
+		(princ s)
+		(vla-EndUndoMark doc)
+		(princ)
+	)
+	(main)
 )
 
 

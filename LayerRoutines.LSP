@@ -1272,7 +1272,7 @@
   (princ)
 )
 
-(defun c:af (/ *error* main doc)
+(defun c:af(/ *error* main doc)
 	(vl-load-com)
 	(defun main ()
 		(vla-StartUndoMark (setq doc (vla-get-ActiveDocument (vlax-get-acad-object))))

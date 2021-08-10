@@ -87,3 +87,4 @@
 (defun c:s1 () (setvar "SNAPMODE" 1)(setvar "SNAPUNIT" (list 1 1)))
 (defun c:s2 () (setvar "SNAPMODE" 1)(setvar "SNAPUNIT" (list 0.5 0.5)))
 (defun c:s4 () (setvar "SNAPMODE" 1)(setvar "SNAPUNIT" (list 0.25 0.25)))
+(defun c:TPS() (setvar "PICKSTYLE" (if (= (getvar "PICKSTYLE") 0) 1 0)))

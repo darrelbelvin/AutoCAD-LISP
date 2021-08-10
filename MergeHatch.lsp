@@ -70,8 +70,10 @@
 )
 (defun c:MH () (c:MergeHatch))
 
-(defun hatchsimplifymulti (orighatches / lastEnt boundmessy regions unreg newhatches)
+(defun hatchsimplifymulti (orighatches); / lastEnt boundmessy regions unreg newhatches)
 	(setq lastEnt (entlast))
+
+	(sssetfirst (ssadd))
 	(command "HATCHGENERATEBOUNDARY" orighatches "")
 
 	(setq boundmessy (ssadd))
@@ -90,7 +92,7 @@
 	(command "union" regions "")
 	(setq unreg (entlast) lastEnt unreg)
 
-	(command "-hatch" "s" unreg "" "")
+	(command "-hatch" "a" "a" "n" "" "s" unreg "" "")
 
 	(setq newhatches (ssadd))
 	(while (setq lastEnt (entnext lastEnt))
@@ -98,6 +100,7 @@
 	)
 
 	(command "matchprop" orighatches newhatches "")
+	(command "laycur" newhatches "")
 
 	(repeat (setq i (sslength orighatches))
 		(entdel (ssname orighatches (setq i (1- i))))
