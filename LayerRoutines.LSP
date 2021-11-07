@@ -426,6 +426,7 @@
   "t" "MF-WALLS" "m" "MF-WALLS" "c" "1" "MF-WALLS" "l" "CONTINUOUS" "MF-WALLS" "lw" "0.5" "MF-WALLS" "unlock" "MF-WALLS"
   "t" "MF-WALLS-NEW" "m" "MF-WALLS-NEW" "c" "1" "MF-WALLS-NEW" "l" "continuous" "MF-WALLS-NEW" "lw" "0.5" "MF-WALLS-NEW" 
   "t" "MF-WALLS-EX" "m" "MF-WALLS-EX" "c" "1" "MF-WALLS-EX" "l" "continuous" "MF-WALLS-EX" "lw" "0.5" "MF-WALLS-EX" 
+  "t" "MF-WALLS-REMOVED" "m" "MF-WALLS-REMOVED" "c" "254" "MF-WALLS-REMOVED" "l" "HIDDEN2" "MF-WALLS-REMOVED" "lw" "0.09" "MF-WALLS-REMOVED" 
   "t" "SECTION CUT LINE" "m" "SECTION CUT LINE" "c" "255" "SECTION CUT LINE" "l" "CONTINUOUS" "SECTION CUT LINE" "lw" "0.18" "SECTION CUT LINE"
   "t" "TITLEBLOCK" "m" "TITLEBLOCK" "c" "255" "TITLEBLOCK" "l" "CONTINUOUS" "TITLEBLOCK" "lw" "0.09" "TITLEBLOCK"
 
@@ -666,13 +667,15 @@
  (command "_.-layer"
   "t" "DEFPOINTS" "m" "DEFPOINTS" "c" "253" "DEFPOINTS" "l" "CONTINUOUS" "DEFPOINTS" "lw" "0.09" "DEFPOINTS" 
   "t" "MF-WALLS" "m" "MF-WALLS" "c" "252" "MF-WALLS" "l" "HIDDEN" "MF-WALLS" "lw" "0.20" "MF-WALLS" "lock" "MF-WALLS"
+  "t" "MF-WALLS-NEW" "m" "MF-WALLS-NEW" "c" "252" "MF-WALLS-NEW" "l" "HIDDEN" "MF-WALLS-NEW" "lw" "0.20" "MF-WALLS-NEW" "lock" "MF-WALLS-NEW"
   "t" "MF-HDR-ROOF" "m" "MF-HDR-ROOF" "c" "141" "MF-HDR-ROOF" "l" "CENTER" "MF-HDR-ROOF" "lw" "0.30" "MF-HDR-ROOF" "UNLOCK" "MF-HDR-ROOF"
   "t" "UE-SD-FAN" "m" "UE-SD-FAN" "c" "90" "UE-SD-FAN" "l" "CONTINUOUS" "UE-SD-FAN" "lw" "0.09" "UE-SD-FAN"
   "t" "UF-HEADER" "m" "UF-HEADER" "c" "4" "UF-HEADER" "l" "CENTER" "UF-HEADER" "lw" "0.30" "UF-HEADER"
   "t" "UF-INT-SW" "m" "UF-INT-SW" "c" "33" "UF-INT-SW" "l" "HIDDEN2" "UF-INT-SW" "lw" "0.18" "UF-INT-SW"
   "t" "UF-SOFFIT" "m" "UF-SOFFIT" "c" "33" "UF-SOFFIT" "l" "HIDDEN" "UF-SOFFIT" "lw" "0.09" "UF-SOFFIT"
   "t" "UF-WALL ABOVE" "m" "UF-WALL ABOVE" "c" "255" "UF-WALL ABOVE" "l" "DASHED" "UF-WALL ABOVE" "lw" "0.09" "UF-WALL ABOVE"
-  "t" "UF-WALLS" "m" "UF-WALLS" "c" "1" "UF-WALLS" "l" "DASHED" "UF-WALLS" "lw" "0.30" "UF-WALLS"
+  "t" "UF-WALLS" "m" "UF-WALLS" "c" "1" "UF-WALLS" "l" "DASHED" "UF-WALLS" "lw" "0.30" "UF-WALLS" "lock" "UF-WALLS"
+  "t" "UF-WALLS-NEW" "m" "UF-WALLS-NEW" "c" "1" "UF-WALLS-NEW" "l" "DASHED" "UF-WALLS-NEW" "lw" "0.30" "UF-WALLS-NEW" "lock" "UF-WALLS-NEW"
   "t" "UF-HATCH" "m" "UF-HATCH" "c" "252" "UF-HATCH" "l" "CONTINUOUS" "UF-HATCH" "lw" "0.09" "UF-HATCH"
   "t" "RF-AREA" "m" "RF-AREA" "c" "2" "RF-AREA" "l" "CONTINUOUS" "RF-AREA" "lw" "0.13" "RF-AREA"
   "t" "RF-BEAM" "m" "RF-BEAM" "c" "51" "RF-BEAM" "l" "CENTER2" "RF-BEAM" "lw" "0.25" "RF-BEAM" 
@@ -1286,4 +1289,10 @@
 		(princ)
 	)
 	(main)
+)
+
+(defun c:forceoverride()
+  (command "_.-layer"
+  "t" "*" "c" "249" "*" "l" "EXCA" "*" "lw" "2.11" "*" 
+  "" "REGEN")
 )

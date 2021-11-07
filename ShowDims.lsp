@@ -1,7 +1,8 @@
 (load "GrTextV1-1.lsp")
 (load "msgbox.lsp")
 
-(defun c:showdims ( / *error* dis rot pt1 pt2 pt3 suf T_Segments T_Start T_End ss i ent)
+(defun c:showdims () (command "measuregeom" "q"))
+(defun c:showdimsold ( / *error* dis rot pt1 pt2 pt3 suf T_Segments T_Start T_End ss i ent)
 
     (defun *error* ( m ) (princ m) (redraw) (princ))
 
